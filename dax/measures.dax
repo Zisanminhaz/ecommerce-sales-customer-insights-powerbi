@@ -1,0 +1,33 @@
+// =====================================================================
+//  E-Commerce Sales & Customer Insight Dashboard — DAX measures
+//  Table: data  (cleaned Online Retail transactions, one row per invoice line)
+//  Values verified against the dashboard cards:
+//      Total Revenue   10,644,560.42   (card: 10.64M)
+//      Total Customers 4,338           (card: 4K)
+//      Total Orders    19,962          (card: 20K)
+// =====================================================================
+
+// Revenue per line is Quantity × UnitPrice; SUMX evaluates it row by row.
+Total Revenue =
+SUMX ( data, data[Quantity] * data[UnitPrice] )
+
+// Distinct customers. Rows without a CustomerID (guest checkouts) are ignored.
+Total Customers =
+DISTINCTCOUNT ( data[CustomerID] )
+
+// One invoice = one order; an invoice has several product lines.
+Total Orders =
+DISTINCTCOUNT ( data[InvoiceNo] )
+
+
+// ---------------------------------------------------------------------
+// Optional measures for extending the report
+// ---------------------------------------------------------------------
+Avg Order Value =
+DIVIDE ( [Total Revenue], [Total Orders] )
+
+Revenue per Customer =
+DIVIDE (
+    CALCULATE ( [Total Revenue], NOT ISBLANK ( data[CustomerID] ) ),
+    [Total Customers]
+)
